@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: itop-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: itop
+      MYSQL_USER: itop
+      MYSQL_PASSWORD: itoppass
+      MYSQL_ROOT_PASSWORD: rootpass
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: itop-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./itop:/var/www/html
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1/ >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  db_data:
