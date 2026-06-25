@@ -1,6 +1,9 @@
 .git
 .gitignore
+itop/.git
+itop/.github
+itop/node_modules
+itop/vendor
+itop/data
+db_data
 README.md
-docker-compose.yml
-Dockerfile
-.dockerignore
